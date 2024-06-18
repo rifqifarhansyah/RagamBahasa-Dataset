@@ -12,7 +12,7 @@ substitutions = {
 def mask_character(char):
     if char in substitutions:
         random_choice = random.random()
-        if random_choice < 0.80:
+        if random_choice < 0.70:
             return substitutions[char]
         elif random_choice < 0.90:
             return chr(random.choice(list(range(65, 91)) + list(range(97, 123))))
@@ -34,6 +34,18 @@ def generate_variations(word):
         random_index = random.choice(indices)
         variation[random_index] = mask_character(word[random_index])
         variations.add(''.join(variation))
+        
+    if len(word) > 1 and random.random() < 0.4 and '-' not in word:
+        split_index = random.randint(1, len(word) - 1)
+        if random.random() < 0.5:
+            hyphenated_word = word[:split_index] + "-\n" + word[split_index:]
+            variations.add(hyphenated_word)
+        else:
+            hyphenated_word = word[:split_index] + "- " + word[split_index:]
+            variations.add(hyphenated_word)
+            
+    if '-' in word and random.random() < 0.6:
+        variations.add(word.replace('-', '-\n'))
 
     return list(variations)
 
