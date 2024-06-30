@@ -10,41 +10,31 @@ substitutions = {
 }
 
 def mask_character(char):
-    if char in substitutions:
-        random_choice = random.random()
-        if random_choice < 0.70:
-            return substitutions[char]
-        elif random_choice < 0.90:
-            return chr(random.choice(list(range(65, 91)) + list(range(97, 123))))
-        elif random_choice < 0.95:
-            return ' '
-        else:
-            return char
-    return char
+    # llama3, aya23, cendol
+    random_choice = random.random()
+    if random_choice < 0.80 and char in substitutions:
+        return substitutions[char]
+    elif random_choice < 0.90:
+        return random.choice([' '] + list(chr(i) for i in range(65, 91)) + list(chr(i) for i in range(97, 123)))
+    else:
+        return char
 
 def generate_variations(word):
-    indices = [i for i, char in enumerate(word) if char in substitutions]
-    if not indices:
-        return [word]
-    num_variations = max(1, int(0.15 * len(word)))
-
     variations = set()
-    while len(variations) < num_variations:
-        variation = list(word)
-        random_index = random.choice(indices)
-        variation[random_index] = mask_character(word[random_index])
-        variations.add(''.join(variation))
-        
+    word_length = len(word)
+    
+    for i in range(word_length):
+        if random.random() < 0.85:
+            variation = list(word)
+            variation[i] = mask_character(word[i])
+            variations.add(''.join(variation))
+    
     if len(word) > 1 and random.random() < 0.4 and '-' not in word:
         split_index = random.randint(1, len(word) - 1)
-        if random.random() < 0.5:
-            hyphenated_word = word[:split_index] + "-\n" + word[split_index:]
-            variations.add(hyphenated_word)
-        else:
-            hyphenated_word = word[:split_index] + "- " + word[split_index:]
-            variations.add(hyphenated_word)
+        hyphenated_word = word[:split_index] + "-\n" + word[split_index:]
+        variations.add(hyphenated_word)
             
-    if '-' in word and random.random() < 0.6:
+    if '-' in word and random.random() < 0.4:
         variations.add(word.replace('-', '-\n'))
 
     return list(variations)
